@@ -328,6 +328,41 @@
         .story-card-guest { display: block; text-align: right; margin-top: 15px; font-style: normal; font-weight: bold; color: var(--accent-color); }
         .stories-header { grid-column: 1 / -1; margin-bottom: 20px; }
 
+        /* --- Google Maps integration --- */
+        .map-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3em;
+            flex-wrap: wrap; /* allow wrapping */
+            text-align: center; /* center text on mobile */
+            margin: 40px 0;
+        }
+
+        .map-section .box {
+            max-width: 600px;
+            flex: 1 1 300px; /* shrink on smaller screens */
+        }
+
+        .map-section iframe {
+            border: 2px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+        }
+        @media (max-width: 768px) {
+            .map-section {
+                flex-direction: column;
+                gap: 1.5em;
+                padding: 0 var(--side-margin-mobile);
+            }
+            .map-section iframe {
+                height: 300px;
+            }
+        }
+
         /* --- NEW: Redesigned About Us Section --- */
         .about-us-section { 
             background-color: var(--white-text); overflow: hidden; 
@@ -431,6 +466,145 @@
         body.join-open { overflow: hidden; }
         body.join-open .header { opacity: 0; transform: translateY(-12px); pointer-events: none; visibility: hidden; }
         @media (max-width: 768px) { .join-page { height: 100vh; padding-left: var(--side-margin-mobile); padding-right: var(--side-margin-mobile); } .image-with-text{ width: 100%; max-width: 100%; aspect-ratio: 3/2; margin: 0 auto; } .image-with-text img { width: 100%; height: 100%; object-fit: cover; } }
+        /* --- Global Mobile Tweaks --- */
+        @media (max-width: 768px) {
+            body {
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+            .header {
+                padding: 16px var(--side-margin-mobile);
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .menu-icon, .book-now-btn {
+                font-size: 0.9rem;
+                padding: 8px 14px;
+            }
+
+            /* Hero text */
+            .main-text .big-font {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+            .welcome-text {
+                font-size: 1.2rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            /* Image galleries */
+            .image-gallery,
+            .food-gallery,
+            .messages-grid,
+            .highlight-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px;
+            }
+
+            .image-with-text {
+                width: 100%;
+                max-width: 100%;
+                aspect-ratio: 4/3;
+            }
+
+            /* About section */
+            .about-us-content {
+                grid-template-columns: 1fr;
+                grid-gap: 30px;
+            }
+
+            /* Map section (already updated before) */
+            .map-section {
+                flex-direction: column;
+                gap: 1.5em;
+                padding: 0 var(--side-margin-mobile);
+            }
+            .map-section iframe {
+                height: 280px;
+            }
+
+            /* Footer */
+            .white-frame {
+                padding: 40px var(--side-margin-mobile);
+            }
+            .footer-buttons {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .footer-buttons .newsletter {
+                width: 100%;
+            }
+            .footer-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .main-text .big-font {
+                font-size: 1.6rem;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .menu-icon::before {
+                font-size: 1rem;
+            }
+            .stories-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .story-card-image img {
+                height: 200px;
+            }
+            .map-section iframe {
+                height: 220px;
+            }
+        }
+        @media (max-width: 768px) {
+            .image-with-text {
+                display: block;
+                margin-bottom: 24px;
+                box-shadow: none;
+            }
+
+            .image-with-text .image-wrapper {
+                width: 100%;
+                aspect-ratio: 4/3;   /* consistent height across all images */
+                overflow: hidden;
+                border-radius: 10px;
+            }
+
+            .image-with-text .image-wrapper img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;   /* fills box neatly without white gaps */
+                display: block;
+                border-radius: 10px;
+            }
+
+            /* Text moved below image */
+            .image-with-text .side-text {
+                position: relative;
+                margin-top: 12px;
+                padding: 0;
+                background: none;
+                font-style: normal;
+                opacity: 1;
+                text-align: left;
+                color: #444;
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+        }
+
+
+    
     </style>
 </head>
 <body>
@@ -523,7 +697,15 @@
             <button class="stories-btn">More Stories</button>
             <hr class="elegant-line">
         </div>
-        
+        <!--Google maps embed-->
+        <section class="map-section">
+            <div class="box">
+                <h2 class="elegant-text">Where to find us</h2>
+                <p class="lead-copy">Near the police station to the right</p>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d10248.251204151173!2d-0.6456198290282951!3d35.68518942565908!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd7e8970209a4bab%3A0x6615f67fb63462be!2sLe%20Palme%20Hotel%20Oran!5e0!3m2!1sen!2sdz!4v1756244172903!5m2!1sen!2sdz" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </section>
+
         <!-- Our Style Highlights -->
         <div class="style-section">
             <div class="center-cta">
