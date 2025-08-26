@@ -157,7 +157,7 @@
         .elegant-text { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-style: italic; margin-bottom: 50px; }
         .image-gallery, .food-gallery, .messages-grid { display: grid; grid-gap: var(--grid-gap); padding: 0 var(--side-margin-desktop); }
         .image-gallery { grid-template-columns: repeat(2, 1fr); }
-        .image-with-text { position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); perspective: 1000px; }
+        .image-with-text { position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); perspective: 1000px;aspect-ratio: 3/2; }
     .image-with-text { min-height: 320px; }
     /* modifier: make an individual image card shorter */
     .image-with-text.short-height { min-height: 0; height: 140px; align-self: start; overflow: hidden; }
@@ -430,7 +430,7 @@
         .join-page .muted { color: #7c7773; font-size: 0.95rem; }
         body.join-open { overflow: hidden; }
         body.join-open .header { opacity: 0; transform: translateY(-12px); pointer-events: none; visibility: hidden; }
-        @media (max-width: 768px) { .join-page { height: 100vh; padding-left: var(--side-margin-mobile); padding-right: var(--side-margin-mobile); } }
+        @media (max-width: 768px) { .join-page { height: 100vh; padding-left: var(--side-margin-mobile); padding-right: var(--side-margin-mobile); } .image-with-text{ height: 50%; margin: 0 auto; } }
     </style>
 </head>
 <body>
