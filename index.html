@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxurious Hotel | The Serene</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS resets and global styles */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --grid-columns: 12; --grid-gap: 20px; --side-margin-desktop: 80px; --side-margin-mobile: 20px;
+            --white-text: #ffffff; --dark-frame: #1a1a1a; --accent-color: #d1b068;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Montserrat', sans-serif; 
+            color: #333; 
+            background-color: #ffffff; /* remove dark/black background flash */
+            overflow-x: hidden;
+        }
+        /* NEW: Class to prevent scrolling when menu is open */
+        body.nav-open { overflow: hidden; }
+
+        /* --- NEW: Full-Screen Navigation Menu --- */
+        .nav-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--dark-frame);
+            z-index: 1100; /* <- above the style-page */
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            pointer-events: none; /* disabled until opened */
+        }
+        .nav-overlay.open { opacity: 1; visibility: visible; pointer-events: auto; }
+        .nav-content { text-align: center; }
+        .nav-content ul { list-style: none; }
+        .nav-content li { margin: 20px 0; transform: translateY(20px); opacity: 0; transition: transform 0.5s ease, opacity 0.5s ease; }
+        .nav-overlay.open .nav-content li { transform: translateY(0); opacity: 1; }
+        /* Staggered animation for menu items */
+        .nav-overlay.open .nav-content li:nth-child(1) { transition-delay: 0.2s; }
+        .nav-overlay.open .nav-content li:nth-child(2) { transition-delay: 0.3s; }
+        .nav-overlay.open .nav-content li:nth-child(3) { transition-delay: 0.4s; }
+        .nav-overlay.open .nav-content li:nth-child(4) { transition-delay: 0.5s; }
+        .nav-overlay.open .nav-content li:nth-child(5) { transition-delay: 0.6s; }
+
+        .nav-content a {
+            font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem);
+            color: var(--white-text); text-decoration: none; position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-content a:hover { color: var(--accent-color); }
+        .nav-content a::before {
+            content: ''; position: absolute; bottom: -5px; left: 0;
+            width: 100%; height: 1px; background-color: var(--accent-color);
+            transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
+        }
+        .nav-content a:hover::before { transform: scaleX(1); }
+        .close-btn {
+            position: absolute; top: 40px; right: 40px;
+            color: var(--white-text); font-size: 2.5rem; text-decoration: none;
+            cursor: pointer; transition: transform 0.3s, color 0.3s;
+        }
+        .close-btn:hover { transform: rotate(90deg); color: var(--accent-color); }
+
+        /* --- Main Page --- */
+        .main-page {
+            height: 100vh;
+            background-image: url('https://images.pexels.com/photos/5371676/pexels-photo-5371676.jpeg');
+            background-size: cover; background-position: center;
+            position: relative; color: var(--white-text); display: flex;
+            flex-direction: column; justify-content: space-between;
+            /* remove dark-frame so no black flash when transitioning */
+            /* background-color: var(--dark-frame); */
+        }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 30px var(--side-margin-desktop); animation: fadeInDown 1s ease-out;
+        }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .header h1 { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2rem; text-align: center; flex-grow: 1; }
+        .typing-cursor { color: var(--accent-color); animation: blink 1s step-end infinite; }
+        @keyframes blink { from, to { opacity: 1; } 50% { opacity: 0; } }
+        .menu-icon, .book-now-btn {
+            background: none; border: none; color: var(--white-text); font-size: 1rem; cursor: pointer;
+            padding: 10px 20px; transition: color 0.3s; z-index: 300; /* Ensure menu icon is above overlay when closing */
+        }
+        .menu-icon:hover, .book-now-btn:hover { color: var(--accent-color); }
+        .menu-icon::before { content: "✦"; margin-right: 8px; font-size: 1.2rem; }
+        .main-text {
+            text-align: center; padding: 0 var(--side-margin-desktop); margin-bottom: 50px;
+            animation: fadeInUp 1s 0.5s ease-out backwards;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .main-text h2 { font-family: 'Playfair Display', serif; font-weight: 400; font-size: clamp(1.2rem, 3vw, 2rem); line-height: 1.6; }
+        .main-text .big-font {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1.2;
+            margin: 20px 0;
+            display: block;
+        }
+
+        .welcome-text {
+            font-family: 'Playfair Display', serif;
+            font-style: bold;
+            font-size: clamp(1.6rem, 2vw, 1.8rem);
+
+            color: #f7ce83;
+        }
+
+        .subtitle {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(1.2rem, 2vw, 1.8rem);
+            opacity: 0.9;
+        }
+
+        /* --- Style Page --- */
+        /* New: full-screen frame that slides up to cover main page */
+        .style-page {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100vh;
+            transform: translateY(100%);
+            transition: transform 620ms cubic-bezier(0.22, 0.8, 0.2, 1);
+            z-index: 900;
+            background-color: #ffffff;
+            overflow-y: auto;
+            will-change: transform;
+        }
+
+        .style-page.active {
+            transform: translateY(0);
+        }
+
+        /* Ensure about section and footer are visible (but hide until requested) */
+        .about-us-section, 
+        .footer-dark-frame {
+            position: relative;
+            z-index: 850;
+            background-color: #ffffff;
+        }
+        /* hidden by default until user clicks About in the menu */
+        .hidden-until-about { display: none !important; }
+
+        .footer-dark-frame {
+            background-color: var(--dark-frame);
+        }
+        
+        .style-section { padding: 15px 0; text-align: center; }
+        .elegant-text { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-style: italic; margin-bottom: 50px; }
+        .image-gallery, .food-gallery, .messages-grid { display: grid; grid-gap: var(--grid-gap); padding: 0 var(--side-margin-desktop); }
+        .image-gallery { grid-template-columns: repeat(2, 1fr); }
+        .image-with-text { position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); perspective: 1000px; }
+    .image-with-text { min-height: 320px; }
+    /* modifier: make an individual image card shorter */
+    .image-with-text.short-height { min-height: 0; height: 140px; align-self: start; overflow: hidden; }
+    .image-with-text.short-height .image-wrapper { height: 100%; }
+    .image-with-text.short-height .image-wrapper img { height: 100%; width: 100%; object-fit: cover; display: block; }
+    /* hide the large side-text on this compressed card so it doesn't expand the row */
+    .image-with-text.short-height .side-text { display: none; }
+
+    /* utility: fixed 400px card for emphasis */
+    .image-with-text.fixed-height-400 { height: 400px; align-self: start; overflow: hidden; }
+    .image-with-text.fixed-height-400 .image-wrapper { height: 100%; }
+    .image-with-text.fixed-height-400 .image-wrapper img { height: 100%; width: 100%; object-fit: cover; display: block; }
+        .image-with-text img {
+            width: 100%; height: 100%; object-fit: cover; transform: translateY(50px); opacity: 0;
+            transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s;
+            will-change: transform, opacity;
+        }
+        .image-with-text .image-wrapper { transition: transform 0.4s ease-out; }
+        .image-with-text.show img { transform: translateY(0); opacity: 1; }
+        .side-text {
+            position: absolute; top: 50%; transform: translateY(-50%); width: 50%; padding: 20px;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);
+            font-style: italic; opacity: 0; transition: opacity 0.5s ease-in-out;
+        }
+        .image-with-text:hover .side-text { opacity: 1; }
+        .side-text.left { left: 0; border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        .side-text.right { right: 0; border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        .elegant-line { border: none; height: 1px; background-color: #e0e0e0; margin: 40px var(--side-margin-desktop); }
+        .food-gallery { grid-template-columns: repeat(3, 1fr); margin-top: -20px; }
+        .food-item { text-align: center; opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .food-item.is-visible { opacity: 1; transform: translateY(0); }
+        .food-item img { width: 100%; height: 300px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .food-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-top: 15px; }
+        .messages-grid { grid-template-columns: repeat(3, 1fr); }
+        .message-box { padding: 20px; border: 1px solid #f5bd93; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: background 0.3s, transform 0.3s; will-change: transform; }
+        .message-box:hover { background: #e8daa784; transform: translateY(-5px); }
+        .stories-btn {
+            margin-top: 50px; padding: 15px 30px; border: 1px solid #f5bd93; background: none; cursor: pointer;
+            font-size: 1rem; transition: all 0.3s; border-radius: 5px; will-change: transform;
+        }
+        .stories-btn:hover { background: #e8daa7a8; transform: scale(1.05); }
+
+        /* --- Style Highlights (added content for 'Our Style') --- */
+        .lead-copy { max-width: 900px; margin: 0 auto 30px; color: #666; line-height: 1.8; font-size: 1rem; }
+    .center-cta { text-align: center; margin: 6px 0; }
+    /* make CTA container a positioning context for decorative stars */
+    .center-cta { position: relative; }
+    /* reduce gap between the messages HR and the Book Your Stay CTA only */
+    .style-section.final-scroll + .style-section .center-cta { margin-top: 2px; }
+
+    /* decorative fill to reduce perceived empty space between sections */
+    .decor-fill { display: flex; justify-content: center; align-items: center; height: 64px; margin-bottom: 8px; }
+    .decor-fill svg { width: 320px; max-width: 80%; height: auto; opacity: 0.09; filter: blur(4px); }
+    @media (max-width: 768px) { .decor-fill { height: 40px; margin-bottom: 6px; } .decor-fill svg { width: 220px; } }
+        .cta-book {
+            display: inline-block; background: var(--accent-color); color: var(--dark-frame);
+            padding: 12px 24px; border-radius: 999px; font-weight: 700; text-decoration: none;
+            box-shadow: 0 8px 24px rgba(209,176,104,0.18); transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .cta-book:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(209,176,104,0.25); }
+        .cute-caption { display: block; margin-top: 8px; color: #8b8681; font-size: 0.95rem; font-style: italic; }
+
+        /* --- Style Highlights (added content for 'Our Style') --- */
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            padding: 0 var(--side-margin-desktop);
+            align-items: start;
+        }
+        .highlight-card {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfaf8 100%);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+            text-align: left;
+        }
+        .highlight-icon {
+            width: 56px; height: 56px; border-radius: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #f2e7c7 100%);
+            color: var(--dark-frame); font-size: 1.4rem; margin-bottom: 12px;
+            box-shadow: 0 6px 18px rgba(209,176,104,0.15);
+        }
+        .highlight-card h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin: 10px 0; }
+        .highlight-card p { color: #666; line-height: 1.6; }
+
+        /* Decorative stars around CTA (purely visual, non-interactive) */
+        .cta-star {
+            position: absolute; font-size: 18px; color: rgba(217,175,90,0.95);
+            pointer-events: none; opacity: 0.95; transform-origin: center;
+            filter: drop-shadow(0 6px 12px rgba(209,176,104,0.12));
+            z-index: 2;
+            animation: floaty 4s ease-in-out infinite;
+        }
+        .cta-star.star-1 { left: calc(50% - 160px); top: -6px; transform: scale(0.95); animation-delay: 0s; }
+        .cta-star.star-2 { left: calc(50% + 120px); top: -10px; transform: scale(0.8); animation-delay: 0.6s; }
+        .cta-star.star-3 { left: calc(50% + 46px); top: -28px; transform: scale(0.7); animation-delay: 1.2s; }
+
+        @keyframes floaty {
+            0% { transform: translateY(0) scale(1); opacity: 0.95; }
+            50% { transform: translateY(-8px) scale(1.05); opacity: 0.8; }
+            100% { transform: translateY(0) scale(1); opacity: 0.95; }
+        }
+
+        /* --- Stories back button styling --- */
+        .stories-page .back-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: var(--white-text);
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: absolute;
+            top: 28px;
+            left: var(--side-margin-desktop);
+            z-index: 1002;
+            transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+        }
+        .stories-page .back-btn:hover {
+            background: var(--white-text);
+            color: var(--dark-frame);
+            transform: translateY(-3px);
+        }
+        .stories-page .back-btn:focus {
+            outline: 3px solid rgba(209,176,104,0.25);
+            outline-offset: 3px;
+        }
+
+        /* --- NEW: Redesigned Stories Page --- */
+        .stories-page {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--dark-frame); color: var(--white-text);
+            display: flex; justify-content: center; align-items: flex-start; /* Aligned to top */
+            transform: translateX(100%); transition: transform 0.8s ease-in-out;
+            z-index: 1001; /* sit above the style-page */
+            will-change: transform; overflow-y: auto; /* Allow scrolling */
+            padding: 100px var(--side-margin-desktop) 50px; /* Add padding */
+        }
+        .stories-page.active { transform: translateX(0); }
+        .stories-content {
+            width: 100%; display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+            margin-top: 60px;
+            grid-gap: 40px;
+        }
+        .stories-content { align-items: start; }
+
+        .story-card {
+            background: #2a2a2a; border-radius: 10px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            align-self: start; /* allow cards to size to their content */
+        }
+        .stories-page.active .story-card { opacity: 1; transform: translateY(0); }
+        /* Staggered animation */
+        .stories-page.active .story-card:nth-child(1) { transition-delay: 0.1s; }
+        .stories-page.active .story-card:nth-child(2) { transition-delay: 0.2s; }
+        .stories-page.active .story-card:nth-child(3) { transition-delay: 0.3s; }
+        .stories-page.active .story-card:nth-child(4) { transition-delay: 0.4s; }
+        .story-card-image img { width: 100%; height: 250px; object-fit: cover; display: block; }
+        .story-card-text { padding: 25px; font-style: italic; font-size: 0.95rem; }
+        .story-card-guest { display: block; text-align: right; margin-top: 15px; font-style: normal; font-weight: bold; color: var(--accent-color); }
+        .stories-header { grid-column: 1 / -1; margin-bottom: 20px; }
+
+        /* --- NEW: Redesigned About Us Section --- */
+        .about-us-section { 
+            background-color: var(--white-text); overflow: hidden; 
+            position: relative; z-index: 800; /* Ensure above other sections */
+        }
+        .white-frame { padding: 80px var(--side-margin-desktop) 20px; }
+        .about-us-content {
+            display: grid; grid-template-columns: 1fr 1fr;
+            grid-gap: 60px; align-items: center; min-height: auto;
+        }
+        .about-us-text {
+            opacity: 0; transform: translateX(-30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .about-us-image {
+            opacity: 0; transform: translateX(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .about-us-section.is-visible .about-us-text,
+        .about-us-section.is-visible .about-us-image {
+            opacity: 1; transform: translateX(0);
+        }
+        .about-us-image img { width: 100%; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .about-us-text p { line-height: 1.8; margin-top: 20px; }
+
+        .footer-line { border: none; height: 1px; background-color: #ccc; margin: 40px 0; }
+        .footer-buttons { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; }
+        .footer-buttons button { background: none; border: none; color: #555; cursor: pointer; font-size: 1rem; transition: color 0.3s; }
+        .footer-buttons button:hover { color: var(--accent-color); }
+        .footer-dark-frame { 
+            background-color: var(--dark-frame); color: var(--white-text); padding: 50px var(--side-margin-desktop); 
+            position: relative; z-index: 800; /* Ensure above other sections */
+        }
+        
+        @media (max-width: 768px) {
+            .image-gallery, .food-gallery, .messages-grid { grid-template-columns: 1fr; }
+            .white-frame, .footer-dark-frame, .stories-page { padding-left: var(--side-margin-mobile); padding-right: var(--side-margin-mobile); }
+            .footer-buttons { flex-direction: column; }
+            .footer-buttons button { margin-bottom: 10px; }
+            .about-us-content { grid-template-columns: 1fr; }
+            .close-btn { top: 20px; right: 20px; }
+        }
+
+        /* Hide header and controls while the style-frame covers the page */
+        body.style-open .header {
+            opacity: 0;
+            transform: translateY(-12px);
+            pointer-events: none;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        body.style-open .menu-icon,
+        body.style-open .book-now-btn,
+        body.style-open .header .title {
+            visibility: hidden;
+        }
+
+        /* Ensure style-page covers everything but allows its own scroll */
+        .style-page {
+            /* ...existing rules... */
+            z-index: 900; /* reduced so modals/pages can layer above when needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-overlay">
+        <a href="#" class="close-btn">&times;</a>
+        <div class="nav-content">
+            <ul>
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#style" class="nav-link">Our Style</a></li>
+                <li><a href="#cuisine" class="nav-link">Cuisine</a></li>
+                <li><a href="#about" class="nav-link">About Us</a></li>
+                <li><a href="#" class="nav-link book-now-btn">Book Now</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <section class="main-page" id="home">
+        <header class="header">
+            <button class="menu-icon">Menu</button>
+            <h1 class="title"></h1>
+            <button class="book-now-btn">Book now</button>
+        </header>
+        <div class="main-text">
+            <h2>
+                <span class="welcome-text">Welcome to</span><br>
+                <span class="big-font">The Art of Fine Living</span><br>
+                <span class="subtitle">Where every moment becomes a cherished memory</span>
+            </h2>
+        </div>
+    </section>
+
+    <section class="style-page" id="style">
+        <div class="style-section first-scroll">
+            <p class="elegant-text">A world of simple luxury, waiting for you.</p>
+            <p class="lead-copy">At The Serene, we believe comfort is curated — from handpicked linens to thoughtfully lit corners. Our spaces are designed to slow the pace, invite presence, and make every stay feel intentionally calm. Explore a selection of rooms and moments that capture our approach to hospitality.
+            We favor natural light, warm textures, and thoughtful rituals — a sunrise breakfast, a candlelit dinner, a quiet terrace for reading. Guests return not only for the rooms, but for the quiet rhythms and small details that create lasting memories. If you'd like to bring someone, reserve a suite and request a bespoke welcome package.</p>
+            <div class="image-gallery">
+                <div class="image-with-text">
+                    <div class="image-wrapper"><img src="../Assets/Picture/BG_1.jpg" alt="Elegant room" loading="lazy" decoding="async"></div>
+                    <div class="side-text left"><p>Discover peaceful moments and serene views. Our suites are arranged to frame natural light and quiet vistas — perfect for reading, reflection, or a slow morning coffee.</p></div>
+                </div>
+
+                <div class="image-with-text">
+                    <div class="image-wrapper"><img src="../Assets/Picture/BG_2.jpg" alt="Comfortable space" loading="lazy" decoding="async"></div>
+                    <div class="side-text right"><p>Every detail is designed for your comfort — from generous seating to tactile fabrics and hidden storage that keeps the room feeling restful rather than cluttered.</p></div>
+                </div>
+
+                <div class="image-with-text">
+                    <div class="image-wrapper"><img src="../Assets/Picture/BG_3.jpg" alt="Serene terrace" loading="lazy" decoding="async"></div>
+                    <div class="side-text left"><p>Quiet terraces and thoughtful touches invite relaxation. Step outside to a private terrace or balcony and let the sounds of the city soften into a peaceful hum.</p></div>
+                </div>
+
+                <div class="image-with-text fixed-height-400">
+                    <div class="image-wrapper"><img src="../Assets/Picture/Food_1.jpg" alt="Breakfast nook" loading="lazy" decoding="async"></div>
+                    <div class="side-text right"><p>Light-filled nooks where breakfast feels like a ceremony. Fresh-baked breads, seasonal fruit, and a slow-brew coffee create a quiet ritual to start your day.</p></div>
+                </div>
+
+                <div class="image-with-text">
+                    <div class="image-wrapper"><img src="../Assets/Picture/Food_2.jpg" alt="Lounge" loading="lazy" decoding="async"></div>
+                    <div class="side-text left"><p>Comfortable lounges perfect for slow afternoons — whether you're catching up on work, sharing a conversation, or simply watching the light change across the courtyard.</p></div>
+                </div>
+
+                <div class="image-with-text">
+                    <div class="image-wrapper"><img src="../Assets/Picture/Food_3.jpg" alt="Evening setting" loading="lazy" decoding="async"></div>
+                    <div class="side-text right"><p>Evenings are made memorable with soft light and warm conversation. Our dining areas shift as the day does — from bright and social to intimate and candlelit.</p></div>
+                </div>
+            </div>
+        </div>
+        <hr class="elegant-line">
+        <div class="style-section second-scroll" id="cuisine">
+            <h2 class="elegant-text">Our Signature Restaurant</h2>
+            <div class="food-gallery">
+                <div class="food-item"><img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200" alt="Food dish 1" loading="lazy" decoding="async"><p class="food-title">Gourmet Cuisine — Seasonal Menu</p><p class="food-desc">A rotating menu inspired by local harvests. Each plate highlights a single ingredient, treated with respect and precision.</p></div>
+                <div class="food-item"><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200" alt="Food dish 2" loading="lazy" decoding="async"><p class="food-title">Artisan Dishes — Handcrafted</p><p class="food-desc">Small-batch techniques and attention to detail give each dish a distinctive character and soul.</p></div>
+                <div class="food-item"><img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200" alt="Food dish 3" loading="lazy" decoding="async"><p class="food-title">Fresh Ingredients — Farm to Table</p><p class="food-desc">We partner with nearby farmers to bring you produce at peak flavor and texture.</p></div>
+            </div>
+        </div>
+        <hr class="elegant-line">
+        <div class="style-section final-scroll">
+            <h2 class="elegant-text">Messages from our Guests</h2>
+            <div class="messages-grid">
+                <div class="message-box"><p>“An incredible stay — from the warm welcome to the quiet, well-designed rooms; we left feeling truly rested.”</p></div>
+                <div class="message-box"><p>“A beautiful, lived-in place. The attention to small details makes the whole visit feel personal and genuine.”</p></div>
+                <div class="message-box"><p>“The food was a highlight: simple, seasonal, and prepared with care. Our anniversary dinner felt intimate and special — we'll remember it for years.”</p></div>
+
+                <div class="message-box"><p>“A hidden gem. Calm, private, and thoughtfully run — felt like home the moment we arrived.”</p></div>
+                <div class="message-box"><p>“Exceptional service. Little gestures — a handwritten note, an extra blanket — turned a great stay into something memorable.”</p></div>
+                <div class="message-box"><p>“Every detail felt intentional. We'll be back next season.”</p></div>
+            </div>
+            <button class="stories-btn">More Stories</button>
+            <hr class="elegant-line">
+        </div>
+        
+        <!-- Our Style Highlights -->
+        <div class="style-section">
+            <div class="center-cta">
+                <a href="#" class="cta-book">Book Your Stay</a>
+                <span class="cute-caption">we'll leave a little note and a sample of local honey for you</span>
+                <!-- decorative stars (purely visual, non-interactive) -->
+                <span class="cta-star star-1" aria-hidden="true">✦</span>
+                <span class="cta-star star-2" aria-hidden="true">✶</span>
+                <span class="cta-star star-3" aria-hidden="true">✦</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-us-section hidden-until-about" id="about">
+        <div class="white-frame">
+            <div class="about-us-content">
+                <div class="about-us-text">
+                    <h2 class="elegant-text">Our Story</h2>
+                    <p>For decades, The Serene has been a sanctuary of peace and luxury. Our story began not with bricks and mortar, but with a simple idea: to create a place where time slows, where every guest feels cherished, and every stay becomes a beautiful escape. We opened our doors to offer quiet hospitality — attentive service, seasonal food, and rooms that encourage rest.</p>
+                    <p style="color:#666; margin-top:12px; line-height:1.7;">Over the years we have grown thoughtfully: partnering with local artisans, sourcing responsibly, and keeping design choices that favor longevity over trends. We believe hospitality is a conversation — between the place, the people, and the stories that come back with you.</p>
+                </div>
+                <div class="about-us-image">
+                    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1800" alt="Hotel exterior or founder portrait">
+                </div>
+            </div>
+            <hr class="footer-line">
+            <div class="footer-buttons">
+                <button>Our History</button>
+                <button class="book-now-btn">Book Your Stay</button>
+                <button>Join Our Team</button>
+            </div>
+        </div>
+    <div class="footer-dark-frame hidden-until-about">
+            <div class="container"><p>123 Serenity Blvd, City, Country</p><p>+1 (555) 123-4567 | info@luxurioushotel.com</p><p style="margin-top:12px; color:#cfc0a0;">Open year-round — your calm is closer than you think.</p></div>
+        </div>
+    </section>
+
+    <section class="stories-page">
+        <button class="back-btn">Back</button>
+        <div class="stories-content">
+            <div class="stories-header">
+                <h2 class="elegant-text">Moments from Our Guests</h2>
+            </div>
+            <div class="story-card">
+                <div class="story-card-image"><img src="https://images.pexels.com/photos/33509841/pexels-photo-33509841.jpeg" alt="Guest story image"></div>
+                <div class="story-card-text">“We celebrated our tenth anniversary here. The team quietly made everything perfect — a handwritten note, a small bouquet, and a table by the window. I keep thinking about the soft morning light and the slow, peaceful breakfasts.”<span class="story-card-guest">- The Millers</span></div>
+            </div>
+            <div class="story-card">
+                <div class="story-card-image"><img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200" alt="Guest story image"></div>
+                <div class="story-card-text">“The staff made my birthday weekend feel effortless. Small touches—like remembering my coffee preference—made it feel personal and warm.”<span class="story-card-guest">- Sarah J.</span></div>
+            </div>
+            <div class="story-card">
+                <div class="story-card-image"><img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200" alt="Guest story image"></div>
+                <div class="story-card-text">“I loved the calm design. It felt uncluttered and honest — a rare and refreshing change from the usual hotel bustle. The small details, like the local art and the handmade soaps, made it feel special. The staff were incredibly attentive, always anticipating our needs before we even voiced them. From the moment we arrived, we felt pampered and cared for. The serene atmosphere allowed us to truly relax and unwind, leaving us feeling rejuvenated and refreshed. We especially enjoyed the peaceful breakfasts on the terrace, overlooking the lush gardens. It was the perfect start to each day. We can't wait to return for another unforgettable experience.”<span class="story-card-guest">- David Chen</span></div>
+            </div>
+            <div class="story-card">
+                <div class="story-card-image"><img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200" alt="Guest story image"></div>
+                <div class="story-card-text">“A perfect escape — I arrived exhausted and left feeling like myself again. Quiet corners, thoughtful service, and the kind of bed that makes you sink in and stay.”<span class="story-card-guest">- Maria G.</span></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const stylePage = document.querySelector('.style-page');
+            const storiesBtn = document.querySelector('.stories-btn');
+            const storiesPage = document.querySelector('.stories-page');
+            const backBtn = document.querySelector('.back-btn');
+            const menuIcon = document.querySelector('.menu-icon');
+            const navOverlay = document.querySelector('.nav-overlay');
+            const closeBtn = document.querySelector('.close-btn');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Ensure slide-frame is closed on load
+            stylePage.classList.remove('active');
+            body.classList.remove('nav-open', 'style-open');
+
+            // --- Elegant Typewriter Effect ---
+            const titleElement = document.querySelector('.header .title');
+            const titleText = "The Serene";
+            let i = 0;
+            function typeWriter() {
+                if (!titleElement) return;
+                if (i < titleText.length) {
+                    titleElement.innerHTML += titleText.charAt(i); i++;
+                    setTimeout(typeWriter, 150);
+                } else {
+                    titleElement.innerHTML += '<span class="typing-cursor">|</span>';
+                }
+            }
+            typeWriter();
+
+            // If page loaded with #about in URL, reveal about section and footer and scroll to it
+            if (window.location.hash === '#about') {
+                const aboutSection = document.querySelector('#about');
+                const footerFrame = document.querySelector('.footer-dark-frame');
+                if (aboutSection) aboutSection.classList.remove('hidden-until-about');
+                if (footerFrame) footerFrame.classList.remove('hidden-until-about');
+                setTimeout(() => { if (aboutSection) aboutSection.scrollIntoView({ behavior: 'smooth' }); }, 200);
+            }
+
+            // --- Full-Screen Menu Logic ---
+            function toggleNav() {
+                body.classList.toggle('nav-open');
+                navOverlay.classList.toggle('open');
+            }
+            if (menuIcon) menuIcon.addEventListener('click', toggleNav);
+            if (closeBtn) closeBtn.addEventListener('click', (e) => { e.preventDefault(); toggleNav(); });
+
+            // Navigation handler
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const href = link.getAttribute('href') || '';
+                    
+                    // Close nav overlay
+                    if (navOverlay.classList.contains('open')) {
+                        toggleNav();
+                    }
+
+                    // Handle navigation
+                    if (href.startsWith('#') && href !== '#') {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+
+                        if (target) {
+                            if (href === '#style' || href === '#cuisine') {
+                                showStylePage();
+                            } else {
+                                // If user is navigating to About, reveal the about section and footer first
+                                if (href === '#about') {
+                                    const aboutSection = document.querySelector('#about');
+                                    const footerFrame = document.querySelector('.footer-dark-frame');
+                                    if (aboutSection) aboutSection.classList.remove('hidden-until-about');
+                                    if (footerFrame) footerFrame.classList.remove('hidden-until-about');
+                                }
+                                // Ensure style page is closed then scroll
+                                hideStylePage();
+                                setTimeout(() => {
+                                    target.scrollIntoView({ behavior: 'smooth' });
+                                }, 120);
+                            }
+                        }
+                    }
+                });
+            });
+
+            // --- General purpose observer for animations ---
+            const animationObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (entry.target.matches('.image-with-text img')) entry.target.closest('.image-with-text').classList.add('show');
+                        if (entry.target.matches('.food-item')) entry.target.classList.add('is-visible');
+                        if (entry.target.matches('.about-us-section')) entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            document.querySelectorAll('.image-with-text img, .food-item, .about-us-section').forEach(el => animationObserver.observe(el));
+
+            // --- Interactive 3D Parallax effect on gallery images ---
+            document.querySelectorAll('.image-with-text').forEach(item => {
+                const imgWrapper = item.querySelector('.image-wrapper');
+                item.addEventListener('mousemove', e => {
+                    const { left, top, width, height } = item.getBoundingClientRect();
+                    const rotateY = 20 * ((e.clientX - left - width / 2) / width);
+                    const rotateX = -20 * ((e.clientY - top - height / 2) / height);
+                    imgWrapper.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.1)`;
+                });
+                item.addEventListener('mouseleave', () => imgWrapper.style.transform = 'rotateX(0) rotateY(0) scale(1)');
+            });
+
+            // --- Stories Page Transitions ---
+            if (storiesBtn && storiesPage) storiesBtn.addEventListener('click', () => storiesPage.classList.add('active'));
+            if (backBtn && storiesPage) backBtn.addEventListener('click', () => storiesPage.classList.remove('active'));
+        });
+    </script>
+    <script>
+        // slide-up behavior: show .style-page when user scrolls down on .main-page,
+        // hide it when user scrolls up at top of the .style-page.
+        (function () {
+            const mainPage = document.querySelector('.main-page');
+            const stylePage = document.querySelector('.style-page');
+            if (!mainPage || !stylePage) return;
+
+            let isAnimating = false;
+            let touchStartY = 0;
+
+            function setNavOpen(on) {
+                if (on) document.body.classList.add('nav-open');
+                else document.body.classList.remove('nav-open');
+            }
+
+            // NEW: toggle a body class to hide header when style-page covers the screen
+            function setStyleOpen(on) {
+                if (on) document.body.classList.add('style-open');
+                else document.body.classList.remove('style-open');
+            }
+
+            function showStylePage() {
+                if (isAnimating || stylePage.classList.contains('active')) return;
+                isAnimating = true;
+                stylePage.classList.add('active');
+                setNavOpen(true); // prevent main-page scroll behind
+                setStyleOpen(true); // hide header/menu
+                setTimeout(() => { isAnimating = false; }, 700);
+            }
+
+            function hideStylePage() {
+                if (isAnimating || !stylePage.classList.contains('active')) return;
+                isAnimating = true;
+                stylePage.classList.remove('active');
+                setNavOpen(false);
+                setStyleOpen(false);
+                setTimeout(() => { isAnimating = false; }, 700);
+            }
+
+            // Wheel behavior on main page: scroll down => show frame
+            mainPage.addEventListener('wheel', (e) => {
+                if (e.deltaY > 20) {
+                    e.preventDefault();
+                    showStylePage();
+                }
+            }, { passive: false });
+
+            // Wheel behavior on style page: when at top and user scrolls up => hide frame
+            stylePage.addEventListener('wheel', (e) => {
+                if (e.deltaY < -20 && stylePage.scrollTop <= 0) {
+                    e.preventDefault();
+                    hideStylePage();
+                }
+            }, { passive: false });
+
+            // Touch support: swipe up on main => show; swipe down on style at top => hide
+            mainPage.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            mainPage.addEventListener('touchmove', (e) => {
+                const dy = touchStartY - e.touches[0].clientY;
+                if (dy > 40) showStylePage();
+            }, { passive: true });
+
+            stylePage.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            stylePage.addEventListener('touchmove', (e) => {
+                const dy = touchStartY - e.touches[0].clientY;
+                if (dy < -40 && stylePage.scrollTop <= 0) hideStylePage();
+            }, { passive: true });
+
+            // If user navigates with keyboard/page keys, support Escape to close
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && stylePage.classList.contains('active')) {
+                    hideStylePage();
+                }
+            });
+
+            // expose hide/show for other scripts if needed
+            window.showStylePage = showStylePage;
+            window.hideStylePage = hideStylePage;
+        })();
+    </script>
+</body>
+</html>
