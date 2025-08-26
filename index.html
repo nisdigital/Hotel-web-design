@@ -354,13 +354,33 @@
         .about-us-text p { line-height: 1.8; margin-top: 20px; }
 
         .footer-line { border: none; height: 1px; background-color: #ccc; margin: 40px 0; }
-        .footer-buttons { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; }
+        .footer-buttons { display: flex; justify-content: space-between; align-items: center; padding-bottom: 5px; }
         .footer-buttons button { background: none; border: none; color: #555; cursor: pointer; font-size: 1rem; transition: color 0.3s; }
         .footer-buttons button:hover { color: var(--accent-color); }
         .footer-dark-frame { 
-            background-color: var(--dark-frame); color: var(--white-text); padding: 50px var(--side-margin-desktop); 
+            background: linear-gradient(180deg, #131313 0%, #1a1a1a 100%); color: var(--white-text); padding: 50px var(--side-margin-desktop); 
             position: relative; z-index: 800; /* Ensure above other sections */
         }
+        /* Footer layout for the white-frame area (where most footer controls live) */
+        .white-frame .footer-buttons { display: grid; grid-template-columns: 1fr 360px; gap: 28px; align-items: start; }
+        .white-frame .footer-buttons .contact p { margin: 6px 0; color: #5b5448; }
+        .white-frame .footer-buttons .social { display:flex; gap:12px; margin-top:10px; }
+        .white-frame .footer-buttons .social a { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:8px; background: rgba(0,0,0,0.04); color: #7c6f59; text-decoration:none; font-size:1.1rem; }
+        .white-frame .footer-buttons .footer-nav { display:flex; gap:12px; margin-top:12px; flex-wrap:wrap; }
+        .white-frame .footer-buttons .footer-nav a { color:#6f6251; text-decoration:none; font-size:0.95rem; }
+        .white-frame .footer-buttons .newsletter { background: rgba(0,0,0,0.02); padding: 16px; border-radius: 10px; }
+        .white-frame .footer-buttons .newsletter label { display:block; margin-bottom:8px; color:#6b6256; font-weight:600; }
+        .white-frame .footer-buttons .newsletter input[type="email"] { width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:transparent; color:#333; }
+    .white-frame .footer-buttons .newsletter .newsletter-row { display:flex; gap:8px; align-items:center; }
+    .white-frame .footer-buttons .newsletter button { margin-top:0; display:inline-block; padding:10px 14px; border-radius:999px; border:none; background:var(--accent-color); color:var(--dark-frame); font-weight:700; cursor:pointer; }
+    @media (max-width: 480px) { .white-frame .footer-buttons .newsletter .newsletter-row { flex-direction:column; align-items: stretch; } .white-frame .footer-buttons .newsletter button { width:100%; } }
+        .white-frame .footer-buttons small { display:block; margin-top:12px; color:#7c7773; }
+        .footer-actions { margin-top:8px; display:flex; justify-content: space-between; gap: 18px; }
+    .footer-actions button { padding:10px 14px; border-radius:8px; cursor:pointer; }
+    .footer-btn { background-color: rgb(223, 202, 152); border: none; color: black; font-size: 1rem; cursor: pointer;  }
+    .footer-cta { background: var(--accent-color); color: var(--dark-frame); border: none; box-shadow: 0 10px 30px rgba(209,176,104,0.12); }
+    .footer-nav a { cursor: pointer; }
+        @media (max-width: 900px) { .white-frame .footer-buttons { grid-template-columns: 1fr; } .footer-actions { justify-content:flex-start; } }
         
         @media (max-width: 768px) {
             .image-gallery, .food-gallery, .messages-grid { grid-template-columns: 1fr; }
@@ -389,6 +409,28 @@
             /* ...existing rules... */
             z-index: 900; /* reduced so modals/pages can layer above when needed */
         }
+
+        /* --- Join Page (slide-up frame) --- */
+        .join-page {
+            position: fixed; left: 0; bottom: 0; width: 100%; height: 80vh;
+            transform: translateY(100%);
+            transition: transform 520ms cubic-bezier(0.22, 0.8, 0.2, 1);
+            background: linear-gradient(180deg, #ffffff 0%, #fbfaf8 100%);
+            z-index: 1003; overflow-y: auto; box-shadow: 0 -18px 50px rgba(0,0,0,0.18);
+            border-top-left-radius: 14px; border-top-right-radius: 14px;
+            padding: 28px var(--side-margin-desktop) 48px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .join-page.active { transform: translateY(0); }
+        .join-page .join-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+        .join-page h3 { font-family: 'Playfair Display', serif; margin: 0; font-size: 1.6rem; }
+        .join-close { background: none; border: 1px solid rgba(0,0,0,0.06); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .join-page .join-list { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 12px; }
+        .join-page .join-list li { background: #fff; border-radius: 10px; padding: 16px 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); color: #444; }
+        .join-page .muted { color: #7c7773; font-size: 0.95rem; }
+        body.join-open { overflow: hidden; }
+        body.join-open .header { opacity: 0; transform: translateY(-12px); pointer-events: none; visibility: hidden; }
+        @media (max-width: 768px) { .join-page { height: 100vh; padding-left: var(--side-margin-mobile); padding-right: var(--side-margin-mobile); } }
     </style>
 </head>
 <body>
@@ -509,14 +551,56 @@
             </div>
             <hr class="footer-line">
             <div class="footer-buttons">
-                <button>Our History</button>
-                <button class="book-now-btn">Book Your Stay</button>
-                <button>Join Our Team</button>
+                <div class="contact">
+    
+                    <div class="social">
+                        <a href="#" aria-label="Instagram">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="4" stroke="#e6d6ab" stroke-width="1.2"/><circle cx="12" cy="12" r="3" stroke="#e6d6ab" stroke-width="1.2"/><circle cx="17.2" cy="6.8" r="0.6" fill="#e6d6ab" /></svg>
+                        </a>
+                        <a href="#" aria-label="Facebook">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 3h3v4h-3v14h-4V7H9V3h6z" stroke="#e6d6ab" stroke-width="1.2" fill="none"/></svg>
+                        </a>
+                        <a href="#" aria-label="X">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="#e6d6ab" stroke-width="1.4" stroke-linecap="round"/></svg>
+                        </a>
+                    </div>
+                    <div class="footer-nav"><a class="nav-link" href="#about">About</a><a class="nav-link" href="#style">Style</a><a class="nav-link" href="#cuisine">Cuisine</a></div>
+                </div>
+
+                <div class="newsletter">
+                    <label for="footer-email">Join our newsletter</label>
+                    <div class="newsletter-row">
+                        <input id="footer-email" type="email" placeholder="you@email.com">
+                        <button id="footer-newsletter-btn">Subscribe</button>
+                    </div>
+                    <small>We send seasonal updates and special offers.</small>
+                </div>
+            </div>
+            <div class="footer-actions">
+                <button class="footer-btn">Our History</button>
+                <button id="join-btn" class="footer-btn">Join Our Team</button>
             </div>
         </div>
     <div class="footer-dark-frame hidden-until-about">
             <div class="container"><p>123 Serenity Blvd, City, Country</p><p>+1 (555) 123-4567 | info@luxurioushotel.com</p><p style="margin-top:12px; color:#cfc0a0;">Open year-round — your calm is closer than you think.</p></div>
         </div>
+    </section>
+
+    <!-- Join Page: slide-up frame shown when user clicks Join Our Team -->
+    <section class="join-page" aria-hidden="true" id="join-page">
+        <div class="join-header">
+            <h3>Join Our Team</h3>
+            <button class="join-close" id="join-close">Close</button>
+        </div>
+        <p class="muted">We value warm people who care for guests and craft thoughtful experiences. Here are a few roles and what we look for:</p>
+        <ul class="join-list">
+            <li><strong>Front Desk & Guest Experience</strong><div class="muted">Warmth, attention to detail, familiarity with reservation systems, flexible scheduling.</div></li>
+            <li><strong>Housekeeping Lead</strong><div class="muted">Pride in presentation, efficiency, and the ability to maintain standards with care.</div></li>
+            <li><strong>Kitchen & Service Team</strong><div class="muted">Team players who love seasonal ingredients and steady craft under pressure.</div></li>
+            <li><strong>Facilities & Maintenance</strong><div class="muted">Reliable, preventative mindset, and a hands-on approach to comfortable stays.</div></li>
+        </ul>
+        <hr class="elegant-line">
+        <p class="muted">To apply, email <a href="mailto:careers@luxurioushotel.com">careers@luxurioushotel.com</a> with your CV and a short note about why you'd love to join us.</p>
     </section>
 
     <section class="stories-page">
@@ -609,7 +693,11 @@
 
                         if (target) {
                             if (href === '#style' || href === '#cuisine') {
+                                // Open the style-page frame, and if navigating to cuisine, scroll to it after open
                                 showStylePage();
+                                if (href === '#cuisine') {
+                                    setTimeout(() => { const t = document.querySelector('#cuisine'); if (t) t.scrollIntoView({ behavior: 'smooth' }); }, 260);
+                                }
                             } else {
                                 // If user is navigating to About, reveal the about section and footer first
                                 if (href === '#about') {
@@ -657,6 +745,49 @@
             // --- Stories Page Transitions ---
             if (storiesBtn && storiesPage) storiesBtn.addEventListener('click', () => storiesPage.classList.add('active'));
             if (backBtn && storiesPage) backBtn.addEventListener('click', () => storiesPage.classList.remove('active'));
+
+            // --- Join Page (slide-up) ---
+            const joinBtn = document.getElementById('join-btn');
+            const joinPage = document.getElementById('join-page');
+            const joinClose = document.getElementById('join-close');
+
+            function showJoinPage() {
+                if (!joinPage) return;
+                joinPage.classList.add('active');
+                joinPage.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('join-open');
+            }
+
+            function hideJoinPage() {
+                if (!joinPage) return;
+                joinPage.classList.remove('active');
+                joinPage.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('join-open');
+            }
+
+            if (joinBtn) joinBtn.addEventListener('click', (e) => { e.preventDefault(); showJoinPage(); });
+            if (joinClose) joinClose.addEventListener('click', (e) => { e.preventDefault(); hideJoinPage(); });
+            // close with Escape
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && joinPage && joinPage.classList.contains('active')) hideJoinPage(); });
+
+            // Footer newsletter handling (mock)
+            const footerEmail = document.getElementById('footer-email');
+            const footerNewsletterBtn = document.getElementById('footer-newsletter-btn');
+            if (footerNewsletterBtn && footerEmail) {
+                footerNewsletterBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const val = footerEmail.value.trim();
+                    if (!val || !val.includes('@')) {
+                        footerEmail.style.borderColor = '#ffb3b3';
+                        footerEmail.focus();
+                        return;
+                    }
+                    footerNewsletterBtn.innerText = 'Subscribed';
+                    footerNewsletterBtn.disabled = true;
+                    footerEmail.value = '';
+                    setTimeout(() => { footerNewsletterBtn.innerText = 'Subscribe'; footerNewsletterBtn.disabled = false; }, 2200);
+                });
+            }
         });
     </script>
     <script>
